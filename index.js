@@ -1,4 +1,5 @@
 const app = require('express')()
+const jwt = require('jsonwebtoken')
 const {gql} = require('apollo-server-express')
 
 const PORT = process.env.PORT || 4000
@@ -821,6 +822,24 @@ apollo_start(typeDefs, resolvers, app)
 
 app.get('/towns', async (req, res) => {
     res.send(towns)
+})
+
+app.post('/register', async (req, res) => {
+    let user = {
+        account_id: get_id(),
+        name: req.body.name
+    }
+
+    jwt.sign({user: user}, 'landworry.ru', (err, token) => {
+        res.json({token: token})
+    })
+   
+})
+
+app.post('/verify', async (req, res) => {
+    jwt.verify(req.body.token, 'landworry.ru', (err, data) => {
+        res.json(data)
+    })
 })
 
 app.listen(PORT, () => console.log(`Server started on ${PORT} port`))
